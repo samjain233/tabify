@@ -1,3 +1,4 @@
+/*global chrome*/
 import React, { useState, useEffect } from "react";
 
 const Panel = () => {
@@ -25,6 +26,50 @@ const Panel = () => {
       document.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
+
+  useEffect(() => {
+    const port = chrome.runtime.connect({ name: "tabify" });
+    const getAllTabsInfo = {
+      id: 1
+    }
+    port.postMessage(getAllTabsInfo);
+
+    const deleteParticularTab= {
+      id:2,
+      tabId:""
+    }
+    port.postMessage(deleteParticularTab);
+
+    const PinParticularTab= {
+      id:3,
+      tabId: ""
+    }
+    port.postMessage(PinParticularTab);
+
+    const UnpinParticularTab={
+      id:4,
+      tabId: ""
+    }
+    port.postMessage(UnpinParticularTab);
+
+    const DuplicateParticularTab ={
+      id: 5,
+      tabId: ""
+    }
+    port.postMessage(DuplicateParticularTab);
+
+    port.onMessage.addListener(function (response) {
+      const {id} = response;
+
+      console.log(response);
+    })
+
+
+  }, []);
+
+  
+   
+  
 
   useEffect(() => {
     if (simultaneousPress) {
