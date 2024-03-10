@@ -1,0 +1,30 @@
+{
+    "manifest_version": 3,
+    "name": "My React Extension",
+    "version": "1.0",
+    "description": "A Chrome extension using React",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "tabs"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "contentreact/build/static/js/main.js"
+            ],
+            "css": [
+                "contentreact/build/static/css/main.css"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    }
+}
