@@ -19,7 +19,7 @@ The Chrome Tab Manager Extension is a powerful tool designed to enhance producti
 - **Mongoose**: Elegant MongoDB object modeling for Node.js, facilitating interaction with the database.
 
 ## Installation
-To install Tabify, follow these steps:
+To install Tabify, follow these steps:-
 1. Clone the repository from GitHub.
 2. Install dependencies using npm.
 3. Configure the extension settings as per your requirements.
