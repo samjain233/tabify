@@ -15,8 +15,10 @@ const previewSchema=new mongoose.Schema({
     },
 
     group:{
-        type: String,
-        lowercase:true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"group",
+        required:true,
+        default:null,
     },
 
 },{timestamps:true});
