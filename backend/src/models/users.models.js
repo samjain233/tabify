@@ -6,7 +6,6 @@ const userSchema=new mongoose.Schema({
     username:{
         type: String,
         required:true,
-        unique:true,
         lowercase:true,
     },
 
@@ -20,6 +19,10 @@ const userSchema=new mongoose.Schema({
     password:{
         type: String,
         required:true,
+    },
+
+    refreshToken:{
+        type: String,
     },
 
     // Array of Group Objects->Check for Default
@@ -64,7 +67,7 @@ userSchema.methods.generateRefreshToken=async function(){
         {
         _id: this._id,
         },
-        process.env.REFESH_TOKEN_SECRET,
+        process.env.REFRESH_TOKEN_SECRET,
         {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
         }
