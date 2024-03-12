@@ -195,4 +195,31 @@ let currentWindow = false;
       port.postMessage(currentWindowdata);
     };
   });
+
+
+  //function for bookamarking a tab
+
+  const BookamarkParticularTab = (id, tabId) => {
+    chrome.tabs.get(tabId, function (tab) {
+      if (tab) {
+        // Create a bookmark for the tab with the specified title
+        chrome.bookmarks.create({ title: title, url: tab.url }, function (bookmark) {
+          // Log a message to indicate that the tab has been bookmarked
+          console.log("Tab with ID " + tabId + " has been bookmarked as bookmark with ID " + bookmark.id);
+        });
+      } else {
+        console.error("Tab with ID " + tabId + " not found");
+      }
+    });
+  }
+
+  //function for making a tab hibernate
+  const HiberNateParticularTab = (id, tabId) => {
+    chrome.tabs.discard(tabId, function (discardedTab) {
+      // Log a message to indicate that the tab has been discarded
+      console.log("Tab with ID " + tabId + " has been hibernated");
+    });
+  }
+
+
 })();
