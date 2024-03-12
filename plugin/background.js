@@ -50,6 +50,9 @@ let currentWindow = false;
         case 17:
           OpenTabInNewWindow(msg.tabId);
           break;
+        case 18:
+          UnbookmarkTab(msg.tabId);
+          break;
       }
     });
 
@@ -249,5 +252,19 @@ let currentWindow = false;
         }
       });
     };
+
+    const UnbookmarkTab = (tabId) => {
+      chrome.bookmarks.search({ 'url': 'chrome://newtab/' }, function(bookmarks) {
+        bookmarks.forEach(function(bookmark) {
+            // Check if the bookmark's title matches the tab's title
+            if (bookmark.title === tabId) {
+                chrome.bookmarks.remove(bookmark.id, function() {
+                    console.log('Bookmark removed for tab:', tabId);
+                });
+            }
+        });
+    });
+    }
+
   });
 })();
