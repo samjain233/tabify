@@ -1,9 +1,15 @@
 /*global chrome*/
 import React, { useState, useEffect } from "react";
+import SearchBar from "./SearchBar";
+import Tabs from "./Tabs";
 
 const Panel = () => {
   const [displayPanel, setDisplayPanel] = useState(false);
   const [simultaneousPress, setSimultaneousPress] = useState(false);
+  const [tabs, setTabs] = useState([]);
+  const [search, setSearch] = useState("");
+  const [searchedTabs, setSearchedTabs] = useState([]);
+  const port = chrome.runtime.connect({ name: "tabify" });
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -28,60 +34,81 @@ const Panel = () => {
   }, []);
 
   useEffect(() => {
-    const port = chrome.runtime.connect({ name: "tabify" });
-    const getAllTabsInfo = {
-      id: 1
-    }
-    port.postMessage(getAllTabsInfo);
-
-    const deleteParticularTab= {
-      id:2,
-      tabId:""
-    }
-    port.postMessage(deleteParticularTab);
-
-    const PinParticularTab= {
-      id:3,
-      tabId: ""
-    }
-    port.postMessage(PinParticularTab);
-
-    const UnpinParticularTab={
-      id:4,
-      tabId: ""
-    }
-    port.postMessage(UnpinParticularTab);
-
-    const DuplicateParticularTab ={
-      id: 5,
-      tabId: ""
-    }
-    port.postMessage(DuplicateParticularTab);
-
-    port.onMessage.addListener(function (response) {
-      const {id} = response;
-
-      console.log(response);
-    })
-
-
+    //getting all tabs
+    getAllTabsInfo();
   }, []);
 
-  
-   
-  
+  useEffect(() => {
+    port.onMessage.addListener(function (response) {
+      console.log(response);
+      const { id } = response;
+      if (id === 1) {
+        const { data } = response;
+
+        const urlMap = {};
+
+        data.forEach((obj) => {
+          if (urlMap[obj.url] === undefined) {
+            urlMap[obj.url] = true;
+            obj.duplicate = false;
+          } else {
+            obj.duplicate = true;
+          }
+        });
+        setTabs(data);
+      } else if (id === 10) {
+        setDisplayPanel(false);
+      }
+    });
+  }, [port]);
 
   useEffect(() => {
     if (simultaneousPress) {
       setDisplayPanel((prevState) => !prevState);
+      getAllTabsInfo();
     }
   }, [simultaneousPress]);
+
+  useEffect(() => {
+    setEffectiveTabs();
+  }, [search, tabs]);
+
+  //content.js to background.js ---------------------------------------------------------
+  const getAllTabsInfo = () => {
+    const getAllTabs = {
+      id: 1,
+    };
+    port.postMessage(getAllTabs);
+  };
+
+  //-------------------------------------------------------------------------------------
+
+  const setEffectiveTabs = () => {
+    if (search !== "") {
+      let filteredTabs = tabs.filter((tab) => {
+        return (
+          tab.title.toLowerCase().includes(search.toLowerCase()) ||
+          tab.url.toLowerCase().includes(search.toLowerCase())
+        );
+      });
+      setSearchedTabs(filteredTabs);
+    } else {
+      setSearchedTabs(tabs);
+    }
+  };
 
   return (
     <>
       {displayPanel && (
         <div className="z-[999999] fixed top-0 left-0 h-screen w-screen flex justify-center items-center">
-          <div className="h-[80%] w-[80%] backdrop-blur-md bg-white/30 rounded-2xl shadow-md"></div>
+          <div className="h-[80%] w-[80%] backdrop-blur-md bg-black/20 rounded-2xl shadow-md">
+            <SearchBar search={search} setSearch={setSearch} />
+            <Tabs
+              tabs={searchedTabs}
+              port={port}
+              setDisplayPanel={setDisplayPanel}
+            />
+          </div>
         </div>
       )}
     </>
