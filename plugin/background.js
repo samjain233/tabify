@@ -31,6 +31,12 @@
         case 11:
           moveTabTOExtremeRight(msg.tabId);
           break;
+        case 12:
+          OpenTabInIncognitoMode(msg.tabId);
+          break;
+        case 13:
+          OpenTabInNewWindow(msg.tabId);
+          break;
       }
     });
 
@@ -168,5 +174,32 @@
     });
   }
 
+   const OpenTabInIncognitoMode = (id, tabId) => {
+    chrome.tabs.get(tabId, function(tab) {
+      // Check if the tab exists
+      if (tab) {
+          // Create a new incognito window with the tab's URL
+          chrome.windows.create({
+              url: tab.url,
+              incognito: true
+          }, function(newWindow) {
+              // Close the original tab
+              chrome.tabs.remove(tabId);
+          });
+      }
+  });
+   }
+
+   const OpenTabInNewWindow =( tabId) => {
+    chrome.tabs.get(tabId, function(tab) {
+      // Check if the tab exists
+      if (tab) {
+          // Create a new window with the tab's URL
+          chrome.windows.create({
+              url: tab.url
+          });
+      }
+  });
+   }
 
 })();
