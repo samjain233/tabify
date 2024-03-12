@@ -58,6 +58,18 @@ const Panel = () => {
     }
     port.postMessage(DuplicateParticularTab);
 
+    const BookmarkParticularTab ={
+      id: 6,
+      tabId: ""
+    }
+    port.postMessage(BookmarkParticularTab);
+
+    const HibarnateParticularTab = {
+      id: 7,
+      tabId: ""
+    }
+    port.postMessage(HibarnateParticularTab);
+
     port.onMessage.addListener(function (response) {
       const {id} = response;
 
