@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
 import Tabs from "./Tabs";
+import NavigationMenu from "./NavigationMenu";
+import InfoDisplayPanel from "./InfoDisplayPanel";
 
 const Panel = () => {
   const [displayPanel, setDisplayPanel] = useState(false);
@@ -9,6 +11,8 @@ const Panel = () => {
   const [tabs, setTabs] = useState([]);
   const [search, setSearch] = useState("");
   const [searchedTabs, setSearchedTabs] = useState([]);
+  const [windowVariable, setWindowVariable] = useState(false);
+  const [message, setMessage] = useState("");
   const port = chrome.runtime.connect({ name: "tabify" });
 
   useEffect(() => {
@@ -36,11 +40,12 @@ const Panel = () => {
   useEffect(() => {
     //getting all tabs
     getAllTabsInfo();
+    getCurrentWindowVariable();
   }, []);
 
   useEffect(() => {
     port.onMessage.addListener(function (response) {
-      console.log(response);
+      // console.log(response);
       const { id } = response;
       if (id === 1) {
         const { data } = response;
@@ -58,6 +63,9 @@ const Panel = () => {
         setTabs(data);
       } else if (id === 10) {
         setDisplayPanel(false);
+      } else if (id === 14) {
+        const { currentWindow } = response;
+        setWindowVariable(currentWindow);
       }
     });
   }, [port]);
@@ -66,6 +74,7 @@ const Panel = () => {
     if (simultaneousPress) {
       setDisplayPanel((prevState) => !prevState);
       getAllTabsInfo();
+      getCurrentWindowVariable();
     }
   }, [simultaneousPress]);
 
@@ -79,6 +88,13 @@ const Panel = () => {
       id: 1,
     };
     port.postMessage(getAllTabs);
+  };
+
+  const getCurrentWindowVariable = () => {
+    const getWindowVariable = {
+      id: 14,
+    };
+    port.postMessage(getWindowVariable);
   };
 
   //-------------------------------------------------------------------------------------
@@ -107,8 +123,17 @@ const Panel = () => {
               tabs={searchedTabs}
               port={port}
               setDisplayPanel={setDisplayPanel}
+              setMessage={setMessage}
+            />
+            <NavigationMenu
+              port={port}
+              tabs={tabs}
+              windowVariable={windowVariable}
+              setWindowVariable={setWindowVariable}
+              setMessage={setMessage}
             />
           </div>
+          <InfoDisplayPanel message={message} />
         </div>
       )}
     </>

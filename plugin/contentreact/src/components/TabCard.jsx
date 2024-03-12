@@ -10,7 +10,7 @@ import { FaWindowClose } from "react-icons/fa";
 import { FaBookmark } from "react-icons/fa6";
 import { FaAngleDoubleRight } from "react-icons/fa";
 
-const TabCard = ({ tab, port, setDisplayPanel }) => {
+const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const handleChangeTabClick = () => {
@@ -81,7 +81,7 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
   return (
     <>
       <div
-        className="relative bg-black/40 h-[25vh]  m-4 p-2 flex flex-col justify-center items-center rounded-2xl shadow-md cursor-pointer hover:bg-black/50 hover:border hover:border-white transition-colors duration-100"
+        className="relative bg-black/40 h-[25vh]  m-4 p-2 grid grid-rows-2 rounded-2xl shadow-md cursor-pointer hover:bg-black/50 hover:border hover:border-white transition-colors duration-100"
         onMouseEnter={() => {
           setIsVisible(true);
         }}
@@ -92,7 +92,13 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
         <div className="p-2 w-full flex justify-center items-center">
           <img src={tab?.favIconUrl} className="w-[50px]" />
         </div>
-        <p className="p-2 text-white font-semibold text-lg">{tab.title}</p>
+        {!isVisible && (
+          <p className="p-2 text-white font-semibold text-lg text-center">
+            {tab.title.length > 13
+              ? tab.title.substring(0, 13) + "..."
+              : tab.title}
+          </p>
+        )}
 
         <div
           className={`text-lg grid grid-cols-5 grid-rows-2 gap-1 absolute bottom-0 left-0 p-2 h-[50%] w-full bg-black/80 rounded-b-2xl transition-all duration-500 text-white ${
@@ -102,6 +108,12 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
           <div
             className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
             onClick={handleChangeTabClick}
+            onMouseEnter={() => {
+              setMessage("Change Tab");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
           >
             <IoIosOpen />
           </div>
@@ -109,6 +121,12 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
             <div
               className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
               onClick={pinTab}
+              onMouseEnter={() => {
+                setMessage("Pin Tab");
+              }}
+              onMouseLeave={() => {
+                setMessage("");
+              }}
             >
               <GiPin />
             </div>
@@ -117,6 +135,12 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
             <div
               className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
               onClick={unPinTab}
+              onMouseEnter={() => {
+                setMessage("Unpin Tab");
+              }}
+              onMouseLeave={() => {
+                setMessage("");
+              }}
             >
               <RiUnpinFill />
             </div>
@@ -124,12 +148,24 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
           <div
             className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
             onClick={duplicateTab}
+            onMouseEnter={() => {
+              setMessage("Duplicate current tab");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
           >
             <IoDuplicate />
           </div>
           <div
             className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
             onClick={arrangeTabsInAlphabeticalOrder}
+            onMouseEnter={() => {
+              setMessage("Change Tab");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
           >
             C
           </div>
@@ -139,6 +175,12 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
           <div
             className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
             onClick={moveTabTOExtremeRight}
+            onMouseEnter={() => {
+              setMessage("Move current tab to right end");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
           >
             <FaAngleDoubleRight />
           </div>
@@ -146,12 +188,24 @@ const TabCard = ({ tab, port, setDisplayPanel }) => {
           <div
             className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
             onClick={deleteParticluarTabClick}
+            onMouseEnter={() => {
+              setMessage("Remove Tab");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
           >
             <IoCloseCircleSharp />
           </div>
           <div
             className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
             onClick={closeAllTabsExcept}
+            onMouseEnter={() => {
+              setMessage("Close all other tabs");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
           >
             <FaWindowClose />
           </div>

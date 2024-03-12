@@ -1,3 +1,4 @@
+let currentWindow = false;
 (async () => {
   chrome.runtime.onConnect.addListener(function (port) {
     console.assert(port.name === "tabify");
@@ -31,24 +32,49 @@
         case 11:
           moveTabTOExtremeRight(msg.tabId);
           break;
+        case 12:
+          removeDuplicateTabs(msg.tabs);
+          break;
+        case 13:
+          changeCurrentWindowVariable(msg.value);
+          break;
+        case 14:
+          sendCurrentWindowVariable();
+          break;
       }
     });
 
     //function for sending all tabs details to the content.js
     const sendAllTabs = async (id) => {
-      chrome.tabs.query({}, async function (tabs) {
-        const modifiedTabs = await Promise.all(
-          tabs.map(async (tab) => {
-            const isTabBookMarked = await isTabBookmarked(tab.url);
-            return { ...tab, isTabBookMarked };
-          })
-        );
-        const tabsData = {
-          id: id,
-          data: modifiedTabs,
-        };
-        port.postMessage(tabsData);
-      });
+      if (currentWindow === false) {
+        chrome.tabs.query({}, async function (tabs) {
+          const modifiedTabs = await Promise.all(
+            tabs.map(async (tab) => {
+              const isTabBookMarked = await isTabBookmarked(tab.url);
+              return { ...tab, isTabBookMarked };
+            })
+          );
+          const tabsData = {
+            id: id,
+            data: modifiedTabs,
+          };
+          port.postMessage(tabsData);
+        });
+      } else {
+        chrome.tabs.query({ currentWindow: true }, async function (tabs) {
+          const modifiedTabs = await Promise.all(
+            tabs.map(async (tab) => {
+              const isTabBookMarked = await isTabBookmarked(tab.url);
+              return { ...tab, isTabBookMarked };
+            })
+          );
+          const tabsData = {
+            id: id,
+            data: modifiedTabs,
+          };
+          port.postMessage(tabsData);
+        });
+      }
     };
 
     //function for deleting the particular tab
@@ -134,12 +160,39 @@
       sendAllTabs(1);
     };
 
+    // function to remove duplicate tabs
+    const removeDuplicateTabs = (tabs) => {
+      tabs.forEach(function (tab) {
+        if (tab.duplicate) {
+          chrome.tabs.remove(tab.id);
+        }
+      });
+      closeExtensionMenu();
+    };
+
     //function close Extension Menu
     const closeExtensionMenu = () => {
       const tabsData = {
         id: 10,
       };
       port.postMessage(tabsData);
+    };
+
+    //function to change currentWindowVariable
+    const changeCurrentWindowVariable = (value) => {
+      console.log(value);
+      currentWindow = value;
+      sendCurrentWindowVariable();
+      sendAllTabs(1);
+    };
+
+    //function to send value of currentWindowVariable
+    const sendCurrentWindowVariable = () => {
+      const currentWindowdata = {
+        id: 14,
+        currentWindow: currentWindow,
+      };
+      port.postMessage(currentWindowdata);
     };
   });
 })();
