@@ -44,6 +44,12 @@ let currentWindow = false;
         case 15:
           bookamarkParticularTab(msg.tabId);
           break;
+        case 16:
+          OpenTabInIncognitoMode(msg.tabId);
+          break;
+        case 17:
+          OpenTabInNewWindow(msg.tabId);
+          break;
       }
     });
 
@@ -217,6 +223,30 @@ let currentWindow = false;
     const HiberNateParticularTab = (tabId) => {
       chrome.tabs.discard(tabId, function (discardedTab) {
         console.log("Tab with ID " + tabId + " has been hibernated");
+      });
+    };
+
+    const OpenTabInNewWindow = (tabId) => {
+      chrome.tabs.get(tabId, function (tab) {
+        if (tab) {
+          chrome.windows.create({
+            url: tab.url,
+          });
+        }
+      });
+    };
+
+    const OpenTabInIncognitoMode = (tabId) => {
+      chrome.tabs.get(tabId, function (tab) {
+        if (tab) {
+          chrome.windows.create(
+            {
+              url: tab.url,
+              incognito: true,
+            },
+            function (newWindow) {}
+          );
+        }
       });
     };
   });
