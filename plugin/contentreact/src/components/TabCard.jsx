@@ -9,6 +9,7 @@ import { TbHexagonLetterD } from "react-icons/tb";
 import { FaWindowClose } from "react-icons/fa";
 import { FaBookmark } from "react-icons/fa6";
 import { FaAngleDoubleRight } from "react-icons/fa";
+import { BsIncognito } from "react-icons/bs";
 
 const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -76,6 +77,14 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
       tabId: tab.id,
     };
     port.postMessage(moveTabtoright);
+  };
+
+  const bookMarkTab = () => {
+    const bookmarkTab = {
+      id: 15,
+      tabId: tab.id,
+    };
+    port.postMessage(bookmarkTab);
   };
 
   return (
@@ -159,19 +168,29 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
           </div>
           <div
             className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
-            onClick={arrangeTabsInAlphabeticalOrder}
+            onClick={bookMarkTab}
             onMouseEnter={() => {
-              setMessage("Change Tab");
+              setMessage("Bookmark Tab");
             }}
             onMouseLeave={() => {
               setMessage("");
             }}
           >
-            C
+            <FaBookmark />
           </div>
           <div className="flex justify-center items-center">A</div>
           <div className="flex justify-center items-center">B</div>
-          <div className="flex justify-center items-center">A</div>
+          <div
+            className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
+            onMouseEnter={() => {
+              setMessage("Open in Incognito");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <BsIncognito />
+          </div>
           <div
             className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
             onClick={moveTabTOExtremeRight}
