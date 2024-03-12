@@ -6,23 +6,30 @@ const groupItemSchema=new mongoose.Schema({
         required:true,
         lowercase:true,
     },
+
+    group_id:{
+        type: Number,
+        required:true,
+        unique:true,
+    },
+
     colour:{
-        type: Colour,
-        default: 0,
+        type: String,
+        default: "#000000",
     },
 },{});
 
-const groupsSchema=new mongoose.Schema({
-    items:{
-        type: [groupItemSchema] ,
-        required:true,
-        default:null,
-    },
-    ownedby:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    }
-},{timestamps:true});
+// const groupsSchema=new mongoose.Schema({
+//     items:{
+//         type: [groupItemSchema] ,
+//         required:true,
+//         default:null,
+//     },
+//     ownedby:{
+//         type:mongoose.Schema.Types.ObjectId,
+//         ref: 'User',
+//         required: true,
+//     }
+// },{timestamps:true});
 
-export const Group=mongoose.model("Group",groupsSchema);
+export const Group=mongoose.model("Group",groupItemSchema);
