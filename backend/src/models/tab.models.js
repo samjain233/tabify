@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
 
-const previewSchema=new mongoose.Schema({
+const tabSchema=new mongoose.Schema({
     // For Priority of Tabs
-    id:{
-        type: Number,
-        unique:true,
+
+    name:{
+        type:String,
         required:true,
+    },
+
+    favicon:{
+        type:String,
     },
 
     url:{
@@ -20,11 +24,11 @@ const previewSchema=new mongoose.Schema({
     //     default:null,
     // },
 
-    group_id:{
-        type: Number,
-        required:false,
-    }
+    // group_id:{
+    //     type: Number,
+    //     required:false,
+    // }
 
 },{timestamps:true});
 
-export const Preview=mongoose.model("Preview",previewSchema);
+export const Tab=mongoose.model("Tab",tabSchema);

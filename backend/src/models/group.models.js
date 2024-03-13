@@ -7,16 +7,16 @@ const groupItemSchema=new mongoose.Schema({
         lowercase:true,
     },
 
-    group_id:{
-        type: Number,
-        required:true,
-        unique:true,
-    },
-
     colour:{
         type: String,
         default: "#000000",
     },
+
+    tabs:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Tab",
+        default:[], 
+    }]
 },{});
 
 // const groupsSchema=new mongoose.Schema({
