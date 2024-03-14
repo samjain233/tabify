@@ -141,8 +141,56 @@ const logoutUser=asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200,{},"User logged Out"))
 })
 
+const setTimeout=asyncHandler(async(req,res)=>{
+    const{time}=req.body;
+    if (!time) {
+        throw new ApiError(400, "Time is required")
+    }
+    if(time<=0){
+        throw new ApiError(400,"Time value must be positive");
+    }
+    const user=req.user;
+    user.timeout=time;
+    user.save();
+    if(user.timeout!==time){
+        throw new ApiError(500,"Could not update timeout interval");
+    }
+    return res.status(200).json(
+        new ApiResponse(201,{time},"Timeout updated Successfully")
+    )
+})
+
+const addTabData=asyncHandler(async(req,res)=>{
+    const {url,time}=req.body;
+    const user=req.user;
+    if (url.trim()==="" || !time) {
+        throw new ApiError(400, "URL and Time are required")
+    }
+    if(time<0){
+        throw new ApiError(400,"Time must be positive")
+    }
+    const tabfound=await user.sortData.find(tabfound=>tabfound.url===url);
+    if(tabfound){
+        const finalTime= tabfound.activetime + time;
+        tabfound.activetime=finalTime
+    }
+    else{
+        await user.sortData.push({
+            url:url,
+            activetime:time
+        })
+    }
+    await user.save();
+    
+    return res.status(200).json(
+        new ApiResponse(201,"Active Time updated successfully")
+    ) 
+})
+
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    setTimeout,
+    addTabData
 }

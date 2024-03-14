@@ -2,6 +2,17 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+const tabdataSchema=new mongoose.Schema({
+   url:{
+    type:String,
+    required:true,
+   },
+   activetime:{
+    type:Number,
+    default:0
+   }
+})
+
 const userSchema=new mongoose.Schema({
     username:{
         type: String,
@@ -35,7 +46,14 @@ const userSchema=new mongoose.Schema({
     tab_list:[{
         type:mongoose.Schema.Types.ObjectId,
         ref: 'Preview',
-    }]
+    }],
+
+    timeout:{
+        type:Number,
+        default:-1,
+    },
+
+    sortData:[tabdataSchema],
 
 },{timestamps:true});
 
