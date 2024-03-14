@@ -2,9 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Tab } from "../models/tab.models.js";
+import { Group } from "../models/group.models.js";
 
 const addTab=asyncHandler(async (req,res)=>{
-    const{name,favicon,url,groupId}=req.body()
+    const{name,favicon,url,groupId}=req.body
     if (
         [name,url].some((field) => field?.trim() === "")
     ) {
@@ -13,6 +14,13 @@ const addTab=asyncHandler(async (req,res)=>{
     // const existedTab= await Tab.findOne({
     //     $or:[{url}]
     // })
+
+    const user=req.user;
+    const group=await Group.findById(groupId);
+
+    if(!group){
+        throw new ApiError(500,"Group not found")
+    }
 
     const tab=await Tab.create({
         name,
@@ -26,14 +34,13 @@ const addTab=asyncHandler(async (req,res)=>{
         throw new ApiError(500,"Something went wrong while adding tab to group")
     }
 
-    const findGroup=req.user.group_list.findById(groupId)
-
-    if(!findGroup){
-        throw new ApiError(500,"Group not found")
+    const groupIndex = user.group_list.indexOf(groupId);
+    if (groupIndex === -1) {
+        throw new ApiError(500, "Group not found in user's group list");
     }
+    group.tabs.push(tab);
 
-    req.user.group_list.findById(groupId).tabs.push(tab)
-    await req.user.group_list.findById(groupId).save()
+    await group.save()
 
     return res.status(201).json(
         new ApiResponse(200,"Tab added to Group")
@@ -42,26 +49,37 @@ const addTab=asyncHandler(async (req,res)=>{
 })
 
 const removeTab=asyncHandler(async (req,res)=>{
-    const{id,tabId}=req.body
+    const{tabId,groupId}=req.body
 
     if (
-        [id,tabId].some((field) => field?.trim() === "")
+        [groupId,tabId].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "Details not recieved")
     }
 
-    await Tab.deleteOne(tabId)
-    const checkTabDeleted=await Tab.findById(tabId)
+    const group=await Group.findOne({_id:groupId})
+    if (!group) {
+        throw new ApiError(404, "Group not found");
+    }
+    
+    if (!group.tabs) {
+        throw new ApiError(404, "Tab not found in the Group");
+    }
+    
+    const tabIndex = group.tabs.findIndex(tab => tab._id.toString() === tabId);
+    if (tabIndex === -1) {
+        throw new ApiError(404, "Tab is not present in the Group");
+    }
+    group.tabs.splice(tabIndex, 1);
+
+    const deleteThis=await Tab.findOne({_id:tabId})
+    await Tab.deleteOne(deleteThis)
+    const checkTabDeleted=await Tab.findById({_id:tabId})
     if(checkTabDeleted){
         throw new ApiError(500,"Tab could not be removed")
     }
 
-    const index=req.user.group_list[id].indexOf(tabId)
-    if(index===-1){
-        throw new ApiError(404,"Tab is not present in the Group")
-    }
-    req.user.group_list[id].splice(index,1)
-    await req.user.group_list[id].save()
+    await group.save()
 
     return res.status(201).json(
         new ApiResponse(200,"Tab Deleted Successfully")

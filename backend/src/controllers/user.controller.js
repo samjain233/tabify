@@ -2,18 +2,17 @@ import {asyncHandler} from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User } from "../models/users.models.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async(userId) =>{
     try {
         const user = await User.findById(userId)
-        const accessToken = user.generateAccessToken()
-        const refreshToken = user.generateRefreshToken()
+        const accessToken =await user.generateAccessToken()
+        const refreshToken =await user.generateRefreshToken()
 
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
 
+        // console.log("AccessTokenGen:",accessToken)
         return {accessToken, refreshToken}
 
 
@@ -93,8 +92,9 @@ const loginUser = asyncHandler(async (req, res) =>{
     throw new ApiError(401, "Invalid user credentials")
     }
 
-   const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
-
+   
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+    // console.log("AccessToken:",accessToken)
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
     const options = {
@@ -122,9 +122,12 @@ const logoutUser=asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set:{
-                refreshToken:undefined
+            $unset:{
+                refreshToken:1
             }
+        },
+        {
+            new:true
         }
     )
     const options={

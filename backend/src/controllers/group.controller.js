@@ -42,22 +42,30 @@ const deleteGroup=asyncHandler(async (req,res)=>{
     if(!id){
         throw new ApiError(400,"Select a Group to remove")
     }
-    await Group.deleteOne(id)
+
+    const group=Group.findById(id);
+    if(!group){
+        throw new ApiError(400,"Group not found");
+    }
+
+    await Group.deleteOne(group)
     const checkGroupDeleted=await Group.findById(id)
     if(checkGroupDeleted){
         throw new ApiError(500,"Group could not be deleted")
     }
 
-    const index = req.user.group_list.indexOf(id);
+    const user=req.user;
+
+    const index = user.group_list.indexOf(id);
     if (index === -1) {
         throw new ApiError(404, "Group not found in user's group list");
     }
 
     // Remove the group ID from the array
-    req.user.group_list.splice(index, 1);
+    user.group_list.splice(index, 1);
 
     // Save the user model to persist the changes
-    await req.user.save();
+    await user.save();
 
     return res.status(201).json(
         new ApiResponse(200,"Group Deleted Successfully")
