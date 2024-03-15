@@ -13,6 +13,7 @@ const Panel = () => {
   const [searchedTabs, setSearchedTabs] = useState([]);
   const [windowVariable, setWindowVariable] = useState(false);
   const [message, setMessage] = useState("");
+  const [displayStarTabs, setDisplayStarTabs] = useState(false);
   const port = chrome.runtime.connect({ name: "tabify" });
 
   useEffect(() => {
@@ -41,6 +42,7 @@ const Panel = () => {
     //getting all tabs
     getAllTabsInfo();
     getCurrentWindowVariable();
+    getStarWindowVariable();
   }, []);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ const Panel = () => {
       const { id } = response;
       if (id === 1) {
         const { data } = response;
-
+        console.log(data);
         const urlMap = {};
 
         data.forEach((obj) => {
@@ -66,6 +68,9 @@ const Panel = () => {
       } else if (id === 14) {
         const { currentWindow } = response;
         setWindowVariable(currentWindow);
+      } else if (id === 21) {
+        const { showStarTabs } = response;
+        setDisplayStarTabs(showStarTabs);
       }
     });
   }, [port]);
@@ -75,12 +80,13 @@ const Panel = () => {
       setDisplayPanel((prevState) => !prevState);
       getAllTabsInfo();
       getCurrentWindowVariable();
+      getStarWindowVariable();
     }
   }, [simultaneousPress]);
 
   useEffect(() => {
     setEffectiveTabs();
-  }, [search, tabs]);
+  }, [search, tabs, displayStarTabs]);
 
   //content.js to background.js ---------------------------------------------------------
   const getAllTabsInfo = () => {
@@ -97,10 +103,31 @@ const Panel = () => {
     port.postMessage(getWindowVariable);
   };
 
+  const getStarWindowVariable = () => {
+    const starWindowVar = {
+      id: 21,
+    };
+    port.postMessage(starWindowVar);
+  };
+
   //-------------------------------------------------------------------------------------
 
   const setEffectiveTabs = () => {
-    if (search !== "") {
+    if (displayStarTabs === true && search === "") {
+      let filteredTabs = tabs.filter((tab) => {
+        return tab.isStarMarked === true;
+      });
+      setSearchedTabs(filteredTabs);
+    } else if (search !== "" && displayStarTabs === true) {
+      let filteredTabs = tabs.filter((tab) => {
+        return (
+          (tab.title.toLowerCase().includes(search.toLowerCase()) ||
+            tab.url.toLowerCase().includes(search.toLowerCase())) &&
+          tab.isStarMarked === true
+        );
+      });
+      setSearchedTabs(filteredTabs);
+    } else if (search !== "") {
       let filteredTabs = tabs.filter((tab) => {
         return (
           tab.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -131,6 +158,8 @@ const Panel = () => {
               windowVariable={windowVariable}
               setWindowVariable={setWindowVariable}
               setMessage={setMessage}
+              setDisplayStarTabs={setDisplayStarTabs}
+              displayStarTabs={displayStarTabs}
             />
           </div>
           <InfoDisplayPanel message={message} />

@@ -11,6 +11,8 @@ import { FaBookmark } from "react-icons/fa6";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import { BsIncognito } from "react-icons/bs";
 import { BsWindowPlus } from "react-icons/bs";
+import { GoBookmarkSlashFill } from "react-icons/go";
+import { FaStar } from "react-icons/fa";
 
 const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -72,13 +74,13 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
     port.postMessage(closeAllTabsExcept);
   };
 
-  const moveTabTOExtremeRight = () => {
-    const moveTabtoright = {
-      id: 11,
-      tabId: tab.id,
-    };
-    port.postMessage(moveTabtoright);
-  };
+  // const moveTabTOExtremeRight = () => {
+  //   const moveTabtoright = {
+  //     id: 11,
+  //     tabId: tab.id,
+  //   };
+  //   port.postMessage(moveTabtoright);
+  // };
 
   const bookMarkTab = () => {
     const bookmarkTab = {
@@ -86,6 +88,14 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
       tabId: tab.id,
     };
     port.postMessage(bookmarkTab);
+  };
+
+  const unbookMarkTab = () => {
+    const unBookmarkTab = {
+      id: 18,
+      tabUrl: tab.url,
+    };
+    port.postMessage(unBookmarkTab);
   };
 
   const openTabinIncognito = () => {
@@ -102,6 +112,22 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
       tabId: tab.id,
     };
     port.postMessage(openTabinNewwindow);
+  };
+
+  const starMarkedAtab = () => {
+    const starMark = {
+      id: 19,
+      tabId: tab.id,
+    };
+    port.postMessage(starMark);
+  };
+
+  const starUnmarkTab = () => {
+    const unstar = {
+      id: 20,
+      tabId: tab.id,
+    };
+    port.postMessage(unstar);
   };
 
   return (
@@ -183,18 +209,34 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
           >
             <IoDuplicate />
           </div>
-          <div
-            className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
-            onClick={bookMarkTab}
-            onMouseEnter={() => {
-              setMessage("Bookmark Tab");
-            }}
-            onMouseLeave={() => {
-              setMessage("");
-            }}
-          >
-            <FaBookmark />
-          </div>
+          {!tab?.isTabBookMarked && (
+            <div
+              className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
+              onClick={bookMarkTab}
+              onMouseEnter={() => {
+                setMessage("Bookmark Tab");
+              }}
+              onMouseLeave={() => {
+                setMessage("");
+              }}
+            >
+              <FaBookmark />
+            </div>
+          )}
+          {tab?.isTabBookMarked && (
+            <div
+              className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
+              onClick={unbookMarkTab}
+              onMouseEnter={() => {
+                setMessage("Remove Bookmark");
+              }}
+              onMouseLeave={() => {
+                setMessage("");
+              }}
+            >
+              <GoBookmarkSlashFill />
+            </div>
+          )}
           <div className="flex justify-center items-center">A</div>
           <div
             className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
@@ -221,16 +263,20 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
             <BsIncognito />
           </div>
           <div
-            className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
-            onClick={moveTabTOExtremeRight}
+            className={`flex justify-center items-center  p-2 ${
+              tab.isStarMarked ? "text-amber-500" : ""
+            } hover:bg-gray-500 rounded-md`}
+            onClick={() => {
+              !tab.isStarMarked ? starMarkedAtab() : starUnmarkTab();
+            }}
             onMouseEnter={() => {
-              setMessage("Move current tab to right end");
+              setMessage("Add/Remove from working list");
             }}
             onMouseLeave={() => {
               setMessage("");
             }}
           >
-            <FaAngleDoubleRight />
+            <FaStar />
           </div>
 
           <div

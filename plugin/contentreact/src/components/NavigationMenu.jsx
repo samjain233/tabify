@@ -2,8 +2,16 @@ import React from "react";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { HiMiniWindow } from "react-icons/hi2";
 import { FaRegWindowRestore } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 
-const NavigationMenu = ({ port, tabs, windowVariable, setMessage }) => {
+const NavigationMenu = ({
+  port,
+  tabs,
+  windowVariable,
+  setMessage,
+  displayStarTabs,
+  setDisplayStarTabs,
+}) => {
   const removeDuplicateTabs = () => {
     const removeDupTabs = {
       id: 12,
@@ -18,6 +26,14 @@ const NavigationMenu = ({ port, tabs, windowVariable, setMessage }) => {
       value: value,
     };
     port.postMessage(windowVar);
+  };
+
+  const setStartVariable = (value) => {
+    const starVar = {
+      id: 22,
+      value: value,
+    };
+    port.postMessage(starVar);
   };
   return (
     <>
@@ -62,7 +78,22 @@ const NavigationMenu = ({ port, tabs, windowVariable, setMessage }) => {
         >
           <FaRegWindowRestore />
         </div>
-        <div className="m-1">a</div>
+        <div
+          className={`${
+            !displayStarTabs ? "bg-black/60" : "bg-black/80"
+          } p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500`}
+          onClick={() => {
+            setStartVariable(!displayStarTabs);
+          }}
+          onMouseEnter={() => {
+            setMessage("Show starred tabs");
+          }}
+          onMouseLeave={() => {
+            setMessage("");
+          }}
+        >
+          <FaStar />
+        </div>
         <div className="m-1">a</div>
       </div>
     </>

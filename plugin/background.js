@@ -1,4 +1,6 @@
 let currentWindow = false;
+const starTabs = new Map();
+let showStarTabs = false;
 (async () => {
   chrome.runtime.onConnect.addListener(function (port) {
     console.assert(port.name === "tabify");
@@ -29,9 +31,10 @@ let currentWindow = false;
         case 9:
           closeAllTabsExcept(msg.tabId);
           break;
-        case 11:
-          moveTabTOExtremeRight(msg.tabId);
-          break;
+        // case 11:
+        //   // moveTabTOExtremeRight(msg.tabId);
+        //   starMarkATab(msg.tabId);
+        //   break;
         case 12:
           removeDuplicateTabs(msg.tabs);
           break;
@@ -51,7 +54,19 @@ let currentWindow = false;
           OpenTabInNewWindow(msg.tabId);
           break;
         case 18:
-          UnbookmarkTab(msg.tabId);
+          UnbookmarkTab(msg.tabUrl);
+          break;
+        case 19:
+          starMarkATab(msg.tabId);
+          break;
+        case 20:
+          starUnmarkAtab(msg.tabId);
+          break;
+        case 21:
+          getStarTabVariable();
+          break;
+        case 22:
+          setStarVariable(msg.value);
           break;
       }
     });
@@ -62,8 +77,12 @@ let currentWindow = false;
         chrome.tabs.query({}, async function (tabs) {
           const modifiedTabs = await Promise.all(
             tabs.map(async (tab) => {
+              //check for bookmarked
               const isTabBookMarked = await isTabBookmarked(tab.url);
-              return { ...tab, isTabBookMarked };
+
+              //chech for starMarked
+              const isStarMarked = starTabs.has(tab.id);
+              return { ...tab, isTabBookMarked, isStarMarked };
             })
           );
           const tabsData = {
@@ -76,8 +95,12 @@ let currentWindow = false;
         chrome.tabs.query({ currentWindow: true }, async function (tabs) {
           const modifiedTabs = await Promise.all(
             tabs.map(async (tab) => {
+              //check for bookmarked
               const isTabBookMarked = await isTabBookmarked(tab.url);
-              return { ...tab, isTabBookMarked };
+
+              //chech for starMarked
+              const isStarMarked = starTabs.has(tab.id);
+              return { ...tab, isTabBookMarked, isStarMarked };
             })
           );
           const tabsData = {
@@ -229,6 +252,7 @@ let currentWindow = false;
       });
     };
 
+    //open tab in new window
     const OpenTabInNewWindow = (tabId) => {
       chrome.tabs.get(tabId, function (tab) {
         if (tab) {
@@ -239,6 +263,7 @@ let currentWindow = false;
       });
     };
 
+    //open tab in icognito mode
     const OpenTabInIncognitoMode = (tabId) => {
       chrome.tabs.get(tabId, function (tab) {
         if (tab) {
@@ -253,18 +278,43 @@ let currentWindow = false;
       });
     };
 
-    const UnbookmarkTab = (tabId) => {
-      chrome.bookmarks.search({ 'url': 'chrome://newtab/' }, function(bookmarks) {
-        bookmarks.forEach(function(bookmark) {
-            // Check if the bookmark's title matches the tab's title
-            if (bookmark.title === tabId) {
-                chrome.bookmarks.remove(bookmark.id, function() {
-                    console.log('Bookmark removed for tab:', tabId);
-                });
-            }
+    //unbook mark a tab
+    const UnbookmarkTab = (tabUrl) => {
+      chrome.bookmarks.search({ url: tabUrl }, function (bookmarks) {
+        bookmarks.forEach(function (bookmark) {
+          chrome.bookmarks.remove(bookmark.id, function () {
+            console.log("Bookmark removed for tab:", tabId);
+          });
         });
-    });
-    }
+        sendAllTabs(1);
+      });
+    };
 
+    //star marking a tab
+    const starMarkATab = (tabId) => {
+      starTabs.set(tabId, 1);
+      sendAllTabs(1);
+    };
+
+    //star Unmarking a tab
+    const starUnmarkAtab = (tabId) => {
+      starTabs.delete(tabId);
+      sendAllTabs(1);
+    };
+
+    //sending startab variable
+    const getStarTabVariable = () => {
+      const starTabVar = {
+        id: 21,
+        showStarTabs: showStarTabs,
+      };
+      port.postMessage(starTabVar);
+    };
+
+    //changing value of starVariable
+    const setStarVariable = (value) => {
+      showStarTabs = value;
+      getStarTabVariable();
+    };
   });
 })();
