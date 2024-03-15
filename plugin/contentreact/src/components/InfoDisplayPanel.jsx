@@ -1,6 +1,6 @@
 import React from "react";
 
-const InfoDisplayPanel = ({ message }) => {
+const InfoDisplayPanel = ({ message}) => {
   return (
     <>
       {message !== "" && (

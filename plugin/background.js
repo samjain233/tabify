@@ -68,6 +68,18 @@ let showStarTabs = false;
         case 22:
           setStarVariable(msg.value);
           break;
+        case 23:
+          createGroup(msg.groupName);
+          break;
+        case 24:
+          getAllUserGroups();
+          break;
+        case 25:
+          addTabToGroup(msg.tab, msg.groupId);
+          break;
+        case 26:
+          getTabsOfGroup(msg.groupId);
+          break;
       }
     });
 
@@ -315,6 +327,109 @@ let showStarTabs = false;
     const setStarVariable = (value) => {
       showStarTabs = value;
       getStarTabVariable();
+    };
+
+    //creating a group
+    const createGroup = async (groupName) => {
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
+      const url = "http://localhost:8000/api/v1/groups/addgroup";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const body = {
+        name: groupName,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const resJson = await response.json();
+      const createGroupData = {
+        id: 23,
+        data: resJson,
+      };
+      port.postMessage(createGroupData);
+    };
+
+    //fetching All groups
+    const getAllUserGroups = async () => {
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
+      const url = "http://localhost:8000/api/v1/groups/getgroups";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+      });
+      const resJson = await response.json();
+      const getAllGroupsData = {
+        id: 24,
+        data: resJson,
+      };
+      port.postMessage(getAllGroupsData);
+    };
+
+    //add tab to group
+    const addTabToGroup = async (tab, groupId) => {
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
+      const url = "http://localhost:8000/api/v1/tabs/addtab";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const body = {
+        name: tab.title,
+        favicon: tab.favIconUrl,
+        url: tab.url,
+        groupId: groupId,
+      };
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+      const resJson = await response.json();
+      const addTab = {
+        id: 25,
+        data: resJson,
+      };
+      port.postMessage(addTab);
+    };
+
+    //fetch Tab of a group
+    const getTabsOfGroup = async (groupId) => {
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
+      const url = "http://localhost:8000/api/v1/tabs/gettabs";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const body = {
+        groupId: groupId,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const resJson = await response.json();
+      const tabsData = {
+        id: 26,
+        data: resJson,
+      };
+      port.postMessage(tabsData);
     };
   });
 })();

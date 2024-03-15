@@ -13,8 +13,16 @@ import { BsIncognito } from "react-icons/bs";
 import { BsWindowPlus } from "react-icons/bs";
 import { GoBookmarkSlashFill } from "react-icons/go";
 import { FaStar } from "react-icons/fa";
+import { MdPlaylistAddCircle } from "react-icons/md";
 
-const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
+const TabCard = ({
+  tab,
+  port,
+  setDisplayPanel,
+  setMessage,
+  setSelectedTab,
+  setDisplayMain,
+}) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const handleChangeTabClick = () => {
@@ -130,6 +138,12 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
     port.postMessage(unstar);
   };
 
+  const addToGroup = () => {
+    console.log("clicked");
+    setSelectedTab(tab);
+    setDisplayMain("group");
+  };
+
   return (
     <>
       <div
@@ -237,7 +251,18 @@ const TabCard = ({ tab, port, setDisplayPanel, setMessage }) => {
               <GoBookmarkSlashFill />
             </div>
           )}
-          <div className="flex justify-center items-center">A</div>
+          <div
+            className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
+            onClick={addToGroup}
+            onMouseEnter={() => {
+              setMessage("Add to Group");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <MdPlaylistAddCircle />
+          </div>
           <div
             className="flex justify-center items-center  p-2 hover:bg-gray-500 rounded-md"
             onClick={openTabinNewWindow}

@@ -1,8 +1,13 @@
 import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js";
-import { createGroup,deleteGroup } from "../controllers/group.controller.js";
+import {
+  createGroup,
+  deleteGroup,
+  fetchAllGroups,
+} from "../controllers/group.controller.js";
 
-const router=Router()
-router.route("/addgroup").post(verifyJWT,createGroup)
-router.route("/removegroup").post(verifyJWT,deleteGroup)
-export default router
+const router = Router();
+router.route("/addgroup").post(verifyJWT, createGroup);
+router.route("/removegroup").post(verifyJWT, deleteGroup);
+router.route("/getgroups").post(verifyJWT, fetchAllGroups);
+export default router;

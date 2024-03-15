@@ -3,6 +3,8 @@ import { RiDeleteBinFill } from "react-icons/ri";
 import { HiMiniWindow } from "react-icons/hi2";
 import { FaRegWindowRestore } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
+import { BiAddToQueue } from "react-icons/bi";
+import { FaLayerGroup } from "react-icons/fa";
 
 const NavigationMenu = ({
   port,
@@ -10,7 +12,9 @@ const NavigationMenu = ({
   windowVariable,
   setMessage,
   displayStarTabs,
-  setDisplayStarTabs,
+  setDisplayMain,
+  displayMain,
+  setSelectedTab,
 }) => {
   const removeDuplicateTabs = () => {
     const removeDupTabs = {
@@ -37,64 +41,95 @@ const NavigationMenu = ({
   };
   return (
     <>
-      <div className="flex px-2 mt-1">
-        <div
-          className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
-          onClick={removeDuplicateTabs}
-          onMouseEnter={() => {
-            setMessage("Remove alll Duplicate Tabs");
-          }}
-          onMouseLeave={() => {
-            setMessage("");
-          }}
-        >
-          <RiDeleteBinFill />
+      <div className="w-full flex justify-between px-2 mt-1">
+        <div className="flex justify-center items-center">
+          <div
+            className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
+            onClick={removeDuplicateTabs}
+            onMouseEnter={() => {
+              setMessage("Remove all Duplicate Tabs");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <RiDeleteBinFill />
+          </div>
+          <div
+            className={`${
+              !windowVariable ? "bg-black/60" : "bg-black/80"
+            } p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500`}
+            onClick={() => changeCurrentWindowVariable(true)}
+            onMouseEnter={() => {
+              setMessage("Show tabs of current window");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <HiMiniWindow />
+          </div>
+          <div
+            className={`${
+              windowVariable ? "bg-black/60" : "bg-black/80"
+            } p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500`}
+            onClick={() => changeCurrentWindowVariable(false)}
+            onMouseEnter={() => {
+              setMessage("show all tabs");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <FaRegWindowRestore />
+          </div>
+          <div
+            className={`${
+              !displayStarTabs ? "bg-black/60" : "bg-black/80"
+            } p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500`}
+            onClick={() => {
+              setStartVariable(!displayStarTabs);
+            }}
+            onMouseEnter={() => {
+              setMessage("Show starred tabs");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <FaStar />
+          </div>
+          <div className="m-1">a</div>
         </div>
-        <div
-          className={`${
-            !windowVariable ? "bg-black/60" : "bg-black/80"
-          } p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500`}
-          onClick={() => changeCurrentWindowVariable(true)}
-          onMouseEnter={() => {
-            setMessage("Show tabs of current window");
-          }}
-          onMouseLeave={() => {
-            setMessage("");
-          }}
-        >
-          <HiMiniWindow />
+        <div className="flex justify-center items-center">
+          <div
+            className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
+            onClick={() => setDisplayMain("createGroup")}
+            onMouseEnter={() => {
+              setMessage("Create Group");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <BiAddToQueue />
+          </div>
+          <div
+            className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
+            onClick={() => {
+              setDisplayMain("group");
+              setSelectedTab(null);
+            }}
+            onMouseEnter={() => {
+              setMessage("View Groups");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <FaLayerGroup />
+          </div>
         </div>
-        <div
-          className={`${
-            windowVariable ? "bg-black/60" : "bg-black/80"
-          } p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500`}
-          onClick={() => changeCurrentWindowVariable(false)}
-          onMouseEnter={() => {
-            setMessage("show all tabs");
-          }}
-          onMouseLeave={() => {
-            setMessage("");
-          }}
-        >
-          <FaRegWindowRestore />
-        </div>
-        <div
-          className={`${
-            !displayStarTabs ? "bg-black/60" : "bg-black/80"
-          } p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500`}
-          onClick={() => {
-            setStartVariable(!displayStarTabs);
-          }}
-          onMouseEnter={() => {
-            setMessage("Show starred tabs");
-          }}
-          onMouseLeave={() => {
-            setMessage("");
-          }}
-        >
-          <FaStar />
-        </div>
-        <div className="m-1">a</div>
       </div>
     </>
   );

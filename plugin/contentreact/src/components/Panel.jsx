@@ -4,6 +4,10 @@ import SearchBar from "./SearchBar";
 import Tabs from "./Tabs";
 import NavigationMenu from "./NavigationMenu";
 import InfoDisplayPanel from "./InfoDisplayPanel";
+import CreateGroupComponent from "./CreateGroupComponent";
+import toast, { Toaster } from "react-hot-toast";
+import Groups from "./Groups";
+import GroupTab from "./GroupTab";
 
 const Panel = () => {
   const [displayPanel, setDisplayPanel] = useState(false);
@@ -14,6 +18,10 @@ const Panel = () => {
   const [windowVariable, setWindowVariable] = useState(false);
   const [message, setMessage] = useState("");
   const [displayStarTabs, setDisplayStarTabs] = useState(false);
+  const [displayMain, setDisplayMain] = useState("tabs");
+  const [groups, setGroups] = useState([]);
+  const [selectedTab, setSelectedTab] = useState(null);
+  const [groupTabs, setGroupTabs] = useState([]);
   const port = chrome.runtime.connect({ name: "tabify" });
 
   useEffect(() => {
@@ -71,6 +79,21 @@ const Panel = () => {
       } else if (id === 21) {
         const { showStarTabs } = response;
         setDisplayStarTabs(showStarTabs);
+      } else if (id === 23) {
+        const { data } = response;
+        displayToast(data);
+      } else if (id === 24) {
+        const { data } = response;
+        fillGroups(data);
+      } else if (id === 25) {
+        const { data } = response;
+        displayToast(data);
+        setDisplayMain("tabs");
+      } else if (id === 26) {
+        const { data } = response;
+        if (data.success === true) {
+          setGroupTabs(data.data.tabs);
+        }
       }
     });
   }, [port]);
@@ -140,18 +163,59 @@ const Panel = () => {
     }
   };
 
+  const displayToast = (data) => {
+    if (data.success) {
+      toast.success(data.message);
+    } else {
+      toast.error(data.message);
+    }
+  };
+
+  const fillGroups = (data) => {
+    if (data.success) {
+      setGroups(data.data.group_list);
+    }
+  };
+
+  useEffect(() => {
+    console.log(displayMain);
+  }, [displayMain]);
+
+  useEffect(() => {
+    console.log(selectedTab);
+  }, [selectedTab]);
+
   return (
     <>
       {displayPanel && (
         <div className="z-[999999] fixed top-0 left-0 h-screen w-screen flex justify-center items-center">
+          <Toaster
+            position="top-right"
+            reverseOrder={false}
+            toastOptions={{ duration: 3000 }}
+          />
           <div className="h-[80%] w-[80%] backdrop-blur-md bg-black/20 rounded-2xl shadow-md">
             <SearchBar search={search} setSearch={setSearch} />
-            <Tabs
-              tabs={searchedTabs}
-              port={port}
-              setDisplayPanel={setDisplayPanel}
-              setMessage={setMessage}
-            />
+            {displayMain === "tabs" && (
+              <Tabs
+                tabs={searchedTabs}
+                port={port}
+                setDisplayPanel={setDisplayPanel}
+                setMessage={setMessage}
+                setSelectedTab={setSelectedTab}
+                setDisplayMain={setDisplayMain}
+              />
+            )}
+            {displayMain === "createGroup" && (
+              <CreateGroupComponent
+                port={port}
+                setDisplayMain={setDisplayMain}
+              />
+            )}
+            {displayMain === "group" && (
+              <Groups groups={groups} port={port} selectedTab={selectedTab} setDisplayMain={setDisplayMain} />
+            )}
+            {displayMain === "groupTab" && <GroupTab groupTabs={groupTabs} />}
             <NavigationMenu
               port={port}
               tabs={tabs}
@@ -160,6 +224,9 @@ const Panel = () => {
               setMessage={setMessage}
               setDisplayStarTabs={setDisplayStarTabs}
               displayStarTabs={displayStarTabs}
+              displayMain={displayMain}
+              setDisplayMain={setDisplayMain}
+              setSelectedTab={setSelectedTab}
             />
           </div>
           <InfoDisplayPanel message={message} />
