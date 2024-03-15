@@ -2,11 +2,21 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+const tabdataSchema=new mongoose.Schema({
+   url:{
+    type:String,
+    required:true,
+   },
+   activetime:{
+    type:Number,
+    default:0
+   }
+})
+
 const userSchema=new mongoose.Schema({
     username:{
         type: String,
         required:true,
-        unique:true,
         lowercase:true,
     },
 
@@ -22,6 +32,10 @@ const userSchema=new mongoose.Schema({
         required:true,
     },
 
+    refreshToken:{
+        type: String,
+    },
+
     // Array of Group Objects->Check for Default
     group_list:[{
         type:mongoose.Schema.Types.ObjectId,
@@ -32,7 +46,14 @@ const userSchema=new mongoose.Schema({
     tab_list:[{
         type:mongoose.Schema.Types.ObjectId,
         ref: 'Preview',
-    }]
+    }],
+
+    timeout:{
+        type:Number,
+        default:-1,
+    },
+
+    sortData:[tabdataSchema],
 
 },{timestamps:true});
 
@@ -47,7 +68,7 @@ userSchema.methods.isPasswordCorrect=async function(password){
 }
 
 userSchema.methods.generateAccessToken=async function(){
-    jwt.sign(
+    const accessToken=jwt.sign(
         {
         _id: this._id,
         email: this.email,
@@ -58,17 +79,20 @@ userSchema.methods.generateAccessToken=async function(){
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
         }
     )
+    return accessToken
 }
+
 userSchema.methods.generateRefreshToken=async function(){
-    jwt.sign(
+    const refreshToken=jwt.sign(
         {
         _id: this._id,
         },
-        process.env.REFESH_TOKEN_SECRET,
+        process.env.REFRESH_TOKEN_SECRET,
         {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
         }
     )
+    return refreshToken
 }
 
 export const User=mongoose.model("User",userSchema);
