@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import GroupCard from "./GroupCard";
 
-const Groups = ({ groups, port, selectedTab, setDisplayMain }) => {
+const Groups = ({ groups, port, selectedTab, setDisplayMain ,setMessage , setGroupId}) => {
   useEffect(() => {
     const getAllGroups = {
       id: 24,
@@ -18,6 +18,8 @@ const Groups = ({ groups, port, selectedTab, setDisplayMain }) => {
               port={port}
               selectedTab={selectedTab}
               setDisplayMain={setDisplayMain}
+              setMessage ={setMessage}
+              setGroupId={setGroupId}
             />
           );
         })}

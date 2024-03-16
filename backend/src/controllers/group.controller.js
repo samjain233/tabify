@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Group } from "../models/group.models.js";
 import { User } from "../models/users.models.js";
+import randomString from "randomstring";
 
 const createGroup = asyncHandler(async (req, res) => {
   // Fetch data from frontend/postman
@@ -21,8 +22,11 @@ const createGroup = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Group already exists");
   }
 
+  const url = randomString.generate(8);
+
   const newGroup = await Group.create({
     name,
+    url,
   });
 
   const newGroupCreated = await Group.findById(newGroup._id);
@@ -74,12 +78,26 @@ const deleteGroup = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, null, "Group Deleted Successfully"));
 });
 
+const addGroupUsingUrl = asyncHandler(async (req, res) => {
+  const user = req.user;
+  const { url } = req.body;
+  const groupData = await Group.findOne({ url: url });
+  if (!groupData) {
+    const message = "invalid Url";
+    throw new ApiError(400, message);
+  }
+  const addedUrlUser = await User.findByIdAndUpdate(user._id, {
+    $push: { group_list: groupData._id },
+  });
+  return res.status(200).json(new ApiResponse(200, null, "Group added"));
+});
+
 const fetchAllGroups = asyncHandler(async (req, res) => {
   const user = req.user;
   const groupData = await User.findById(user._id)
     .populate({
       path: "group_list",
-      select: "name",
+      select: "name url",
     })
     .select({ group_list: 1 });
 
@@ -88,4 +106,4 @@ const fetchAllGroups = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, groupData, "Group Data fetch successfull"));
 });
 
-export { createGroup, deleteGroup, fetchAllGroups };
+export { createGroup, deleteGroup, fetchAllGroups, addGroupUsingUrl };

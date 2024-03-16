@@ -1,23 +1,31 @@
 import mongoose from "mongoose";
 
-const groupItemSchema=new mongoose.Schema({
-    name: { 
-        type: String, 
-        required:true,
-        lowercase:true,
+const groupItemSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      lowercase: true,
     },
 
-    colour:{
-        type: String,
-        default: "#000000",
+    colour: {
+      type: String,
+      default: "#000000",
+    },
+    url: {
+      type: String,
     },
 
-    tabs:[{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Tab",
-        default:[], 
-    }]
-},{});
+    tabs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Tab",
+        default: [],
+      },
+    ],
+  },
+  {}
+);
 
 // const groupsSchema=new mongoose.Schema({
 //     items:{
@@ -32,4 +40,4 @@ const groupItemSchema=new mongoose.Schema({
 //     }
 // },{timestamps:true});
 
-export const Group=mongoose.model("Group",groupItemSchema);
+export const Group = mongoose.model("Group", groupItemSchema);

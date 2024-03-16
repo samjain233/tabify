@@ -1,7 +1,29 @@
 import React, { useEffect, useState } from "react";
+import { CgInsertAfterR } from "react-icons/cg";
+import { MdDelete } from "react-icons/md";
+import { VscVmActive } from "react-icons/vsc";
 
-const GroupTabCard = ({ tab }) => {
+const GroupTabCard = ({ tab, setMessage, port, groupId }) => {
   const [isVisible, setIsVisible] = useState(false);
+
+  console.log(groupId);
+
+  const addTabToWorkingArea = () => {
+    const addTab = {
+      id: 27,
+      url: tab.url,
+    };
+    port.postMessage(addTab);
+  };
+
+  const deleteTabFromGroup = () => {
+    const deleteTab = {
+      id: 28,
+      tabId: tab._id,
+      groupId: groupId,
+    };
+    port.postMessage(deleteTab);
+  };
   return (
     <>
       <div
@@ -23,6 +45,43 @@ const GroupTabCard = ({ tab }) => {
               : tab.name}
           </p>
         )}
+        <div
+          className={`text-lg grid grid-cols-5 grid-rows-1 gap-1 absolute bottom-0 left-0 p-2 h-[25%] w-full bg-black/80 rounded-b-2xl transition-all duration-500 text-white ${
+            isVisible ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <div
+            className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
+            onClick={addTabToWorkingArea}
+            onMouseEnter={() => {
+              setMessage("Add Tab to working Area");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <CgInsertAfterR />
+          </div>
+          <div
+            className="flex justify-center items-center p-2 hover:bg-gray-500 rounded-md"
+            onClick={deleteTabFromGroup}
+            onMouseEnter={() => {
+              setMessage("Delete Tab from Group");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <MdDelete />
+          </div>
+        </div>
+        <div className="absolute top-0 left-0 p-2 w-full flex flex-wrap text-white">
+          {tab?.isPresent && (
+            <div className="bg-lime-500 p-1 mx-1 rounded-full flex justify-center items-center">
+              <VscVmActive />
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

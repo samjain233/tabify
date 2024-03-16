@@ -8,6 +8,7 @@ import CreateGroupComponent from "./CreateGroupComponent";
 import toast, { Toaster } from "react-hot-toast";
 import Groups from "./Groups";
 import GroupTab from "./GroupTab";
+import AddGroupViaLink from "./AddGroupViaLink";
 
 const Panel = () => {
   const [displayPanel, setDisplayPanel] = useState(false);
@@ -22,6 +23,10 @@ const Panel = () => {
   const [groups, setGroups] = useState([]);
   const [selectedTab, setSelectedTab] = useState(null);
   const [groupTabs, setGroupTabs] = useState([]);
+  const [groupId, setGroupId] = useState(null);
+  const [effectiveGroupTabs, setEffectiveGroupTabs] = useState([]);
+  const [searchedGroupTabs, setSerachedGroupTabs] = useState([]);
+  const [searchedGroups, setSearchedGroups] = useState([]);
   const port = chrome.runtime.connect({ name: "tabify" });
 
   useEffect(() => {
@@ -79,7 +84,7 @@ const Panel = () => {
       } else if (id === 21) {
         const { showStarTabs } = response;
         setDisplayStarTabs(showStarTabs);
-      } else if (id === 23) {
+      } else if (id === 23 || id === 31) {
         const { data } = response;
         displayToast(data);
       } else if (id === 24) {
@@ -109,7 +114,7 @@ const Panel = () => {
 
   useEffect(() => {
     setEffectiveTabs();
-  }, [search, tabs, displayStarTabs]);
+  }, [search, tabs, displayStarTabs, effectiveGroupTabs, groups]);
 
   //content.js to background.js ---------------------------------------------------------
   const getAllTabsInfo = () => {
@@ -136,6 +141,25 @@ const Panel = () => {
   //-------------------------------------------------------------------------------------
 
   const setEffectiveTabs = () => {
+    if (search !== "") {
+      let filteredTabs = groups.filter((group) => {
+        return group.name.toLowerCase().includes(search.toLowerCase());
+      });
+      setSearchedGroups(filteredTabs);
+    } else {
+      setSearchedGroups(groups);
+    }
+    if (search !== "") {
+      let filteredTabs = effectiveGroupTabs.filter((groupTab) => {
+        return (
+          groupTab.name.toLowerCase().includes(search.toLowerCase()) ||
+          groupTab.url.toLowerCase().includes(search.toLowerCase())
+        );
+      });
+      setSerachedGroupTabs(filteredTabs);
+    } else {
+      setSerachedGroupTabs(effectiveGroupTabs);
+    }
     if (displayStarTabs === true && search === "") {
       let filteredTabs = tabs.filter((tab) => {
         return tab.isStarMarked === true;
@@ -185,6 +209,18 @@ const Panel = () => {
     console.log(selectedTab);
   }, [selectedTab]);
 
+  useEffect(() => {
+    groupTabs.forEach((groupTab) => {
+      if (tabs.some((tab) => tab.url === groupTab.url)) {
+        groupTab["isPresent"] = true;
+      } else {
+        groupTab["isPresent"] = false;
+      }
+    });
+
+    setEffectiveGroupTabs(groupTabs);
+  }, [groupTabs, tabs]);
+
   return (
     <>
       {displayPanel && (
@@ -213,9 +249,26 @@ const Panel = () => {
               />
             )}
             {displayMain === "group" && (
-              <Groups groups={groups} port={port} selectedTab={selectedTab} setDisplayMain={setDisplayMain} />
+              <Groups
+                groups={searchedGroups}
+                port={port}
+                selectedTab={selectedTab}
+                setDisplayMain={setDisplayMain}
+                setMessage={setMessage}
+                setGroupId={setGroupId}
+              />
             )}
-            {displayMain === "groupTab" && <GroupTab groupTabs={groupTabs} />}
+            {displayMain === "groupTab" && (
+              <GroupTab
+                groupTabs={searchedGroupTabs}
+                setMessage={setMessage}
+                port={port}
+                groupId={groupId}
+              />
+            )}
+            {displayMain === "AddGroupLink" && (
+              <AddGroupViaLink port={port} setDisplayMain={setDisplayMain} />
+            )}
             <NavigationMenu
               port={port}
               tabs={tabs}

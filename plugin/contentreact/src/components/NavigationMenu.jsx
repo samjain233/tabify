@@ -5,6 +5,9 @@ import { FaRegWindowRestore } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
 import { BiAddToQueue } from "react-icons/bi";
 import { FaLayerGroup } from "react-icons/fa";
+import { MdAddLink } from "react-icons/md";
+import { FaSortAlphaDown } from "react-icons/fa";
+import { TbSortDescending2 } from "react-icons/tb";
 
 const NavigationMenu = ({
   port,
@@ -38,6 +41,20 @@ const NavigationMenu = ({
       value: value,
     };
     port.postMessage(starVar);
+  };
+
+  const sortAlphabetically = () => {
+    const sortAZ = {
+      id: 32,
+    };
+    port.postMessage(sortAZ);
+  };
+
+  const sortLastAccessed = () => {
+    const sortlast = {
+      id: 33,
+    };
+    port.postMessage(sortlast);
   };
   return (
     <>
@@ -104,6 +121,44 @@ const NavigationMenu = ({
         <div className="flex justify-center items-center">
           <div
             className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
+            onClick={sortAlphabetically}
+            onMouseEnter={() => {
+              setMessage("sort tabs alphabetically");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <FaSortAlphaDown />
+          </div>
+          <div
+            className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
+            onClick={sortLastAccessed}
+            onMouseEnter={() => {
+              setMessage("sort tabs last Used time");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <TbSortDescending2 />
+          </div>
+        </div>
+        <div className="flex justify-center items-center">
+          <div
+            className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
+            onClick={() => setDisplayMain("tabs")}
+            onMouseEnter={() => {
+              setMessage("Show Opened Tabs");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <HiMiniWindow />
+          </div>
+          <div
+            className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
             onClick={() => setDisplayMain("createGroup")}
             onMouseEnter={() => {
               setMessage("Create Group");
@@ -128,6 +183,20 @@ const NavigationMenu = ({
             }}
           >
             <FaLayerGroup />
+          </div>
+          <div
+            className="bg-black/60 p-2 mx-1 rounded-full flex justify-center items-center text-lg text-white cursor-pointer hover:bg-black/80 hover:text-amber-500"
+            onClick={() => {
+              setDisplayMain("AddGroupLink");
+            }}
+            onMouseEnter={() => {
+              setMessage("Add Group via link");
+            }}
+            onMouseLeave={() => {
+              setMessage("");
+            }}
+          >
+            <MdAddLink />
           </div>
         </div>
       </div>

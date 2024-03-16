@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 const CreateGroupComponent = ({ port, setDisplayMain }) => {
   const [groupName, setGroupName] = useState("");
 
   const handleCreateGroupClick = () => {
     if (groupName === "") {
+      toast.error("group name can not be empty");
       return;
     }
     setDisplayMain("tabs");

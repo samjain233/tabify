@@ -1,6 +1,16 @@
 let currentWindow = false;
 const starTabs = new Map();
 let showStarTabs = false;
+const token =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDU3ODMzMSwiZXhwIjoxNzEwNjY0NzMxfQ.9vhbcPTr3UijABiFPS0l6mkesgZyffaBi97obyLKRd4";
+
+//maps for closing and hibernating tabs after certain limits reached
+const tabsCode = new Map();
+const tabCloseTime = new Map();
+let currentTabId = null;
+const time = 30; // time in seconds
+const action = "null";
+
 (async () => {
   chrome.runtime.onConnect.addListener(function (port) {
     console.assert(port.name === "tabify");
@@ -80,6 +90,27 @@ let showStarTabs = false;
         case 26:
           getTabsOfGroup(msg.groupId);
           break;
+        case 27:
+          addTabToWorkingAreaByUrl(msg.url);
+          break;
+        case 28:
+          deleteTabOfGroup(msg.tabId, msg.groupId);
+          break;
+        case 29:
+          openAllGroupTabs(msg.groupId);
+          break;
+        case 30:
+          deleteGroup(msg.groupId);
+          break;
+        case 31:
+          addGroupUsingLink(msg.url);
+          break;
+        case 32:
+          ArrangeTabsInAlphabeticalOrder();
+          break;
+        case 33:
+          sortTabsByLastAccessed();
+          break;
       }
     });
 
@@ -149,9 +180,12 @@ let showStarTabs = false;
     const DuplicateParticularTab = (id, tabId) => {
       chrome.tabs.get(tabId, function (tab) {
         if (tab) {
-          chrome.tabs.create({ url: tab.url }, function (duplicatedTab) {
-            sendAllTabs(1);
-          });
+          chrome.tabs.create(
+            { url: tab.url, active: false },
+            function (duplicatedTab) {
+              sendAllTabs(1);
+            }
+          );
         } else {
           console.error("Tab with ID " + tabId + " not found");
         }
@@ -171,6 +205,18 @@ let showStarTabs = false;
         tabs.sort(function (a, b) {
           return a.title.localeCompare(b.title);
         });
+
+        tabs.forEach(function (tab, index) {
+          chrome.tabs.move(tab.id, { index: index });
+        });
+        sendAllTabs(1);
+      });
+    };
+
+    //function for Arranging tabs in LastAccessed Time
+    const sortTabsByLastAccessed = () => {
+      chrome.tabs.query({}, function (tabs) {
+        tabs.sort((a, b) => b.lastAccessed - a.lastAccessed);
 
         tabs.forEach(function (tab, index) {
           chrome.tabs.move(tab.id, { index: index });
@@ -214,7 +260,6 @@ let showStarTabs = false;
           chrome.tabs.remove(tab.id);
         }
       });
-      closeExtensionMenu();
     };
 
     //function close Extension Menu
@@ -254,13 +299,6 @@ let showStarTabs = false;
         } else {
           console.error("Tab with ID " + tabId + " not found");
         }
-      });
-    };
-
-    //function for making a tab hibernate
-    const HiberNateParticularTab = (tabId) => {
-      chrome.tabs.discard(tabId, function (discardedTab) {
-        console.log("Tab with ID " + tabId + " has been hibernated");
       });
     };
 
@@ -329,10 +367,55 @@ let showStarTabs = false;
       getStarTabVariable();
     };
 
+    //add tab to working area by URL
+    const addTabToWorkingAreaByUrl = (url) => {
+      chrome.tabs.create({ url: url, active: false }, function (duplicatedTab) {
+        sendAllTabs(1);
+      });
+    };
+
+    //listening of new tabs
+    chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+      if (changeInfo.status === "complete") {
+        sendAllTabs(1);
+      }
+    });
+
+    //listening of newly created or deleted tabs
+    chrome.tabs.onCreated.addListener(() => sendAllTabs(1));
+    chrome.tabs.onRemoved.addListener(() => sendAllTabs(1));
+    chrome.tabs.onActivated.addListener(() => sendAllTabs(1));
+
+    //open all group tabs
+    const openAllGroupTabs = async (groupId) => {
+      const url = "http://localhost:8000/api/v1/tabs/gettabs";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const body = {
+        groupId: groupId,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const resJson = await response.json();
+      const tabsArray = resJson.data.tabs;
+      tabsArray.forEach((tabs) => {
+        chrome.tabs.create(
+          { url: tabs.url, active: false },
+          function (duplicatedTab) {}
+        );
+        sendAllTabs(1);
+      });
+    };
+
     //creating a group
     const createGroup = async (groupName) => {
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
       const url = "http://localhost:8000/api/v1/groups/addgroup";
       const headers = {
         "Content-Type": "application/json",
@@ -358,8 +441,6 @@ let showStarTabs = false;
 
     //fetching All groups
     const getAllUserGroups = async () => {
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
       const url = "http://localhost:8000/api/v1/groups/getgroups";
       const headers = {
         "Content-Type": "application/json",
@@ -379,8 +460,6 @@ let showStarTabs = false;
 
     //add tab to group
     const addTabToGroup = async (tab, groupId) => {
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
       const url = "http://localhost:8000/api/v1/tabs/addtab";
       const headers = {
         "Content-Type": "application/json",
@@ -407,8 +486,6 @@ let showStarTabs = false;
 
     //fetch Tab of a group
     const getTabsOfGroup = async (groupId) => {
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWYzZGI2Y2U1YmJhOTYwNTE3Y2NjNDUiLCJlbWFpbCI6InNhbWJoYXZqYWluMjMzQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoic2FtYmhhdiIsImlhdCI6MTcxMDQ4MDMxMSwiZXhwIjoxNzEwNTY2NzExfQ.gecJCAppjDhNX7J14o8ZM74KPlsioPiFRiSxwnddUyM";
       const url = "http://localhost:8000/api/v1/tabs/gettabs";
       const headers = {
         "Content-Type": "application/json",
@@ -431,5 +508,130 @@ let showStarTabs = false;
       };
       port.postMessage(tabsData);
     };
+
+    //delete Tab from a group
+    const deleteTabOfGroup = async (tabId, groupId) => {
+      const url = "http://localhost:8000/api/v1/tabs/removetab";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const body = {
+        tabId: tabId,
+        groupId: groupId,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const resJson = await response.json();
+      getTabsOfGroup(groupId);
+    };
+
+    //delete group
+    const deleteGroup = async (groupId) => {
+      const url = "http://localhost:8000/api/v1/groups/removegroup";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const body = {
+        id: groupId,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const resJson = await response.json();
+      if (resJson.success === true) {
+        getAllUserGroups();
+      }
+    };
+
+    //add group via link
+    const addGroupUsingLink = async (taburl) => {
+      const url = "http://localhost:8000/api/v1/groups/addgroupusingurl";
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      };
+      const body = {
+        url: taburl,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const resJson = await response.json();
+      const group = {
+        id: 31,
+        data: resJson,
+      };
+      port.postMessage(group);
+    };
   });
 })();
+
+//function to generate random 8 digit number
+function generateRandom8DigitNumber() {
+  const min = 10000000;
+  const max = 99999999;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+//listening of change of active tabs
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  if (currentTabId !== null && currentTabId !== activeInfo.tabId) {
+    console.log("currentTabId", currentTabId);
+    const tabLockKey = generateRandom8DigitNumber();
+    console.log("tabLockKey", tabLockKey);
+    tabsCode.set(currentTabId, tabLockKey);
+    const timeNow = Math.floor(new Date().getTime() / 1000);
+    const closingTime = timeNow + time;
+    tabCloseTime.set(closingTime, { tabId: currentTabId, pass: tabLockKey });
+  }
+  currentTabId = activeInfo.tabId;
+  const newTabKey = generateRandom8DigitNumber();
+  tabsCode.set(currentTabId, newTabKey);
+});
+
+//hibernating tabs
+const HiberNateParticularTab = (tabId) => {
+  chrome.tabs.discard(tabId);
+  tabsCode.delete(tabId);
+};
+//closing tabs
+const CloseParticularTab = (tabId) => {
+  chrome.tabs.remove(tabId);
+  tabsCode.delete(tabId);
+};
+
+//closing and hibernating window logics
+const closingHibernatingAction = () => {
+  const timeNow = Math.floor(new Date().getTime() / 1000);
+  if (tabCloseTime.has(timeNow)) {
+    const { tabId, pass } = tabCloseTime.get(timeNow);
+    const tabLockKey = tabsCode.get(tabId);
+    console.log("tabId", tabId, "pass", pass, "tabLockKey", tabLockKey);
+    if (pass === tabLockKey) {
+      if (action === "hibernate") {
+        HiberNateParticularTab(tabId);
+      } else if (action === "close") {
+        CloseParticularTab(tabId);
+      }
+    }
+    tabCloseTime.delete(timeNow);
+  }
+};
+
+//running an interval of 1s
+if (action !== "null") setInterval(closingHibernatingAction, 1000);
