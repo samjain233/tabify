@@ -8,12 +8,14 @@ The Chrome Tab Manager Extension is a powerful tool designed to enhance producti
 ## Features
 - **Tab Organization**: Easily categorize and group tabs for better organization and navigation.
   ![image](https://github.com/samjain233/tabify/assets/94921996/19b934aa-4fef-466e-9c67-e43e2c7d18a9)
+![image](https://github.com/samjain233/tabify/assets/94921996/c8ef478b-8e1b-4de8-bcee-46a0a40e0b3c)
 - **Search and Filter**: Quickly locate specific tabs using search and filter functionalities.
 ![image](https://github.com/samjain233/tabify/assets/94921996/02ac1a2a-7183-42c6-abc3-4900df08953f)
 - **Starring Tabs**: Allows user to starred tabs to work on only limited tabs.
 - **Sorting Tabs**: sorting tabs on the basis of alphabetical and last used order to provide convinience for the user.
 - **Auto close or hibernate tab**: Tab will automatically close and hibernate as per the users settings after certain time interval decided by the user.
 - **Tab Analytics**: Provides analysis for the tab usage for the last week , last day , last 6 hours.
+![image](https://github.com/samjain233/tabify/assets/94921996/faa219b9-71d3-4948-97f9-a8cfe94ad2ab)
 
 ## Tech Stack
 - **Node.js**: Server-side runtime environment for building scalable applications.
