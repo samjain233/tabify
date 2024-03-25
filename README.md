@@ -2,14 +2,18 @@
 # Tabify- keep tabs on your tabs!
 
 ## Overview
+![image](https://github.com/samjain233/tabify/assets/94921996/1b2c2cda-744c-497d-8909-6da688640bf1)
 The Chrome Tab Manager Extension is a powerful tool designed to enhance productivity by providing users with efficient management of their browser tabs. Built using a modern tech stack comprising Node.js, Express.js, MongoDB, React.js, and Mongoose, this extension offers a seamless user experience with robust functionality.
 
 ## Features
 - **Tab Organization**: Easily categorize and group tabs for better organization and navigation.
+  ![image](https://github.com/samjain233/tabify/assets/94921996/19b934aa-4fef-466e-9c67-e43e2c7d18a9)
 - **Search and Filter**: Quickly locate specific tabs using search and filter functionalities.
-- **Session Management**: Save and load tab sessions to resume work effortlessly.
-- **Customization**: Personalize tab layouts and settings according to individual preferences.
-- **Sync Across Devices**: Synchronize tab data across multiple devices for seamless workflow continuity.
+![image](https://github.com/samjain233/tabify/assets/94921996/02ac1a2a-7183-42c6-abc3-4900df08953f)
+- **Starring Tabs**: Allows user to starred tabs to work on only limited tabs.
+- **Sorting Tabs**: sorting tabs on the basis of alphabetical and last used order to provide convinience for the user.
+- **Auto close or hibernate tab**: Tab will automatically close and hibernate as per the users settings after certain time interval decided by the user.
+- **Tab Analytics**: Provides analysis for the tab usage for the last week , last day , last 6 hours.
 
 ## Tech Stack
 - **Node.js**: Server-side runtime environment for building scalable applications.
