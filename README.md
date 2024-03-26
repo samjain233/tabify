@@ -17,6 +17,10 @@ The Chrome Tab Manager Extension is a powerful tool designed to enhance producti
 - **Tab Analytics**: Provides analysis for the tab usage for the last week , last day , last 6 hours.
 ![image](https://github.com/samjain233/tabify/assets/94921996/faa219b9-71d3-4948-97f9-a8cfe94ad2ab)
 
+## Video Demo Link
+- [https://drive.google.com/file/d/1sMBk2KyIj2TP7DJ4cpy_y8dJKjlzPBJX/view?usp=drivesdk](https://drive.google.com/file/d/1sMBk2KyIj2TP7DJ4cpy_y8dJKjlzPBJX/view?usp=drivesdk)
+- [https://drive.google.com/file/d/1sOuF7AFps1yRe8w81L5fI5C6D-r0VHfX/view?usp=drivesdk](https://drive.google.com/file/d/1sOuF7AFps1yRe8w81L5fI5C6D-r0VHfX/view?usp=drivesdk)
+
 ## Tech Stack
 - **Node.js**: Server-side runtime environment for building scalable applications.
 - **Express.js**: Minimal and flexible Node.js web application framework for routing and middleware.
